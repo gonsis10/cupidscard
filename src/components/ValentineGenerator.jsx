@@ -7,21 +7,34 @@ import { Card, CardContent } from "./ui/card";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
+import { useRouter } from "next/navigation";
 
 export default function ValentineGenerator() {
 	const [message, setMessage] = useState("");
 	const [recipient, setRecipient] = useState("");
 	const [sender, setSender] = useState("");
+	const router = useRouter();
 
-	const handleDownload = () => {
-		// Implement download functionality here
-		console.log("Downloading card...");
+	const handleGenerateVideo = async () => {
+		const fullMessage = `To: ${recipient}\n\n${message}\n\nFrom: ${sender}`;
+
+		const response = await fetch("http://127.0.0.1:5000/generate_video", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ message: fullMessage }),
+		});
+
+		const data = await response.json();
+
+		if (data.video_url) {
+			router.push(`/card?video=${encodeURIComponent(data.video_url)}`); // Client-side navigation
+		}
 	};
 
 	return (
 		<div className="min-h-screen bg-black text-white flex flex-col items-center px-4 py-8">
 			<Header />
-			<CardCreator message={message} setMessage={setMessage} recipient={recipient} setRecipient={setRecipient} sender={sender} setSender={setSender} onDownload={handleDownload} />
+			<CardCreator message={message} setMessage={setMessage} recipient={recipient} setRecipient={setRecipient} sender={sender} setSender={setSender} onDownload={handleGenerateVideo} />
 			<Footer />
 		</div>
 	);
@@ -85,7 +98,7 @@ function FormField({ id, label, value, onChange, placeholder, multiline = false 
 			<Label htmlFor={id} className="text-gray-400">
 				{label}
 			</Label>
-			<InputComponent id={id} placeholder={placeholder} className="bg-zinc-800 border-pink-500/20" value={value} onChange={(e) => onChange(e.target.value)} {...(multiline ? { minRows: 3 } : {})} />
+			<InputComponent id={id} placeholder={placeholder} className="bg-zinc-800 border-pink-500/20" value={value} onChange={(e) => onChange(e.target.value)} {...(multiline ? { minrows: 3 } : {})} />
 		</div>
 	);
 }
