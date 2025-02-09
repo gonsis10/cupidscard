@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Heart, Download, Sparkles } from "lucide-react";
+import { Download, Sparkles } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
+import { Header } from "./ui/header";
 
 export default function ValentineGenerator() {
 	const [message, setMessage] = useState("");
@@ -22,16 +23,7 @@ export default function ValentineGenerator() {
 		<div className="min-h-screen bg-black text-white flex flex-col items-center px-4 py-8">
 			<Header />
 			<CardCreator message={message} setMessage={setMessage} recipient={recipient} setRecipient={setRecipient} sender={sender} setSender={setSender} onDownload={handleDownload} />
-			<Footer />
-		</div>
-	);
-}
-
-function Header() {
-	return (
-		<div className="flex items-center gap-2 mb-12">
-			<Heart className="w-8 h-8 text-pink-500" />
-			<h1 className="text-3xl font-bold bg-gradient-to-r from-pink-500 to-rose-500 bg-clip-text text-transparent">CupidsCard</h1>
+			{/* <Footer /> */}
 		</div>
 	);
 }
@@ -72,7 +64,7 @@ function CardForm({ message, setMessage, recipient, setRecipient, sender, setSen
 			<FormField id="sender" label="From" value={sender} onChange={setSender} placeholder="Your name" />
 			<Button className="w-full bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600" onClick={onDownload}>
 				<Download className="w-4 h-4 mr-2" />
-				Download Card
+				Create Card
 			</Button>
 		</div>
 	);
