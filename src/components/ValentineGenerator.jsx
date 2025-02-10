@@ -14,6 +14,7 @@ export default function ValentineGenerator() {
 	const [message, setMessage] = useState("");
 	const [recipient, setRecipient] = useState("");
 	const [sender, setSender] = useState("");
+	const [loading, setLoading] = useState(false); // New loading state
 	const router = useRouter();
 	const [socket, setSocket] = useState(null);
 
@@ -34,14 +35,18 @@ export default function ValentineGenerator() {
 			return;
 		}
 
+		setLoading(true); // Set loading to true when the button is clicked
+
 		// Ensure listeners are only added once
 		socket.off("video_ready").on("video_ready", (data) => {
 			console.log("Video is ready:", data.video_url);
+			setLoading(false); // Set loading to false once the video is ready
 			router.push(`/card?video=${encodeURIComponent(data.video_url)}`); // Navigate when ready
 		});
 
 		socket.off("video_failed").on("video_failed", (data) => {
 			console.error("Video generation failed:", data.error);
+			setLoading(false); // Set loading to false if there's an error
 			alert("Failed to generate video. Please try again.");
 		});
 
@@ -62,7 +67,7 @@ export default function ValentineGenerator() {
 	return (
 		<div className="min-h-screen bg-black text-white flex flex-col items-center px-4 py-8">
 			<Header />
-			<CardCreator message={message} setMessage={setMessage} recipient={recipient} setRecipient={setRecipient} sender={sender} setSender={setSender} onDownload={handleGenerateVideo} />
+			<CardCreator message={message} setMessage={setMessage} recipient={recipient} setRecipient={setRecipient} sender={sender} setSender={setSender} onDownload={handleGenerateVideo} loading={loading} />
 			<Footer />
 		</div>
 	);
@@ -81,18 +86,16 @@ function Header() {
 				for a very very special valentine
 			</h1>
 		</div>
-
-
 	);
 }
 
-function CardCreator({ message, setMessage, recipient, setRecipient, sender, setSender, onDownload }) {
+function CardCreator({ message, setMessage, recipient, setRecipient, sender, setSender, onDownload, loading }) {
 	return (
 		<div className="w-full max-w-xl">
 			<Card className="bg-zinc-900 border-pink-500/20">
 				<CardContent className="p-6">
 					<CardPreview message={message} recipient={recipient} sender={sender} />
-					<CardForm message={message} setMessage={setMessage} recipient={recipient} setRecipient={setRecipient} sender={sender} setSender={setSender} onDownload={onDownload} />
+					<CardForm message={message} setMessage={setMessage} recipient={recipient} setRecipient={setRecipient} sender={sender} setSender={setSender} onDownload={onDownload} loading={loading} />
 				</CardContent>
 			</Card>
 		</div>
@@ -114,15 +117,25 @@ function CardPreview({ message, recipient, sender }) {
 	);
 }
 
-function CardForm({ message, setMessage, recipient, setRecipient, sender, setSender, onDownload }) {
+function CardForm({ message, setMessage, recipient, setRecipient, sender, setSender, onDownload, loading }) {
 	return (
 		<div className="space-y-6">
 			<FormField id="recipient" label="To" value={recipient} onChange={setRecipient} placeholder="Recipient's name" />
 			<FormField id="message" label="Your Message" value={message} onChange={setMessage} placeholder="Write your valentine message here..." multiline />
 			<FormField id="sender" label="From" value={sender} onChange={setSender} placeholder="Your name" />
-			<Button className="w-full bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600" onClick={onDownload}>
-				<Download className="w-4 h-4 mr-2" />
-				Download Card
+			<Button
+				className="w-full bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600"
+				onClick={onDownload}
+				disabled={loading} // Disable button while loading
+			>
+				{loading ? (
+					<span>Loading...</span>
+				) : (
+					<>
+						<Download className="w-4 h-4 mr-2" />
+						Download Card
+					</>
+				)}
 			</Button>
 		</div>
 	);
