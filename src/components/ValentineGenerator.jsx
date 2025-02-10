@@ -20,7 +20,7 @@ export default function ValentineGenerator() {
 
 	// Initialize WebSocket connection only once when the component mounts
 	useEffect(() => {
-		const newSocket = io("http://127.0.0.1:8000"); // Change this to your server's address if deployed
+		const newSocket = io("http://3.146.255.4:8000"); // Change this to your server's address if deployed
 		setSocket(newSocket);
 
 		// Cleanup socket connection on unmount
@@ -51,7 +51,7 @@ export default function ValentineGenerator() {
 		});
 
 		// Send video generation request
-		const response = await fetch("http://127.0.0.1:8000/generate_video", {
+		const response = await fetch("http://3.146.255.4:8000/generate_video", {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
@@ -67,7 +67,16 @@ export default function ValentineGenerator() {
 	return (
 		<div className="min-h-screen bg-black text-white flex flex-col items-center px-4 py-8">
 			<Header />
-			<CardCreator message={message} setMessage={setMessage} recipient={recipient} setRecipient={setRecipient} sender={sender} setSender={setSender} onDownload={handleGenerateVideo} loading={loading} />
+			<CardCreator
+				message={message}
+				setMessage={setMessage}
+				recipient={recipient}
+				setRecipient={setRecipient}
+				sender={sender}
+				setSender={setSender}
+				onDownload={handleGenerateVideo}
+				loading={loading}
+			/>
 			<Footer />
 		</div>
 	);
@@ -78,13 +87,9 @@ function Header() {
 		<div className="w-full max-w-xl flex flex-col items-center text-center space-y-3 mb-5">
 			<div className="flex items-center gap-2">
 				<Heart className="w-8 h-8 text-pink-500" />
-				<h1 className="text-3xl font-bold bg-gradient-to-r from-pink-500 to-rose-500 bg-clip-text text-transparent">
-					CupidsCard
-				</h1>
+				<h1 className="text-3xl font-bold bg-gradient-to-r from-pink-500 to-rose-500 bg-clip-text text-transparent">CupidsCard</h1>
 			</div>
-			<h1 className="text-xl font-bold bg-gradient-to-r from-pink-500 to-rose-500 bg-clip-text text-transparent">
-				for a very very special valentine
-			</h1>
+			<h1 className="text-xl font-bold bg-gradient-to-r from-pink-500 to-rose-500 bg-clip-text text-transparent">for a very very special valentine</h1>
 		</div>
 	);
 }
