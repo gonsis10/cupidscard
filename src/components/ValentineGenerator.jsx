@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Heart, Download, Sparkles } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
@@ -8,39 +8,55 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
 import { useRouter } from "next/navigation";
+import { io } from "socket.io-client";
 
 export default function ValentineGenerator() {
 	const [message, setMessage] = useState("");
 	const [recipient, setRecipient] = useState("");
 	const [sender, setSender] = useState("");
 	const router = useRouter();
+	const [socket, setSocket] = useState(null);
+
+	// Initialize WebSocket connection only once when the component mounts
+	useEffect(() => {
+		const newSocket = io("http://127.0.0.1:8000"); // Change this to your server's address if deployed
+		setSocket(newSocket);
+
+		// Cleanup socket connection on unmount
+		return () => {
+			newSocket.disconnect();
+		};
+	}, []);
 
 	const handleGenerateVideo = async () => {
+		if (!socket) {
+			console.error("Socket not connected yet.");
+			return;
+		}
+
+		// Ensure listeners are only added once
+		socket.off("video_ready").on("video_ready", (data) => {
+			console.log("Video is ready:", data.video_url);
+			router.push(`/card?video=${encodeURIComponent(data.video_url)}`); // Navigate when ready
+		});
+
+		socket.off("video_failed").on("video_failed", (data) => {
+			console.error("Video generation failed:", data.error);
+			alert("Failed to generate video. Please try again.");
+		});
+
+		// Send video generation request
 		const response = await fetch("http://127.0.0.1:8000/generate_video", {
 			method: "POST",
-			headers: { "Content-Type": "application/json" },
+			headers: {
+				"Content-Type": "application/json",
+				"Socket-ID": socket.id, // Send the socket ID to identify the client
+			},
 			body: JSON.stringify({ recipient, sender, message }),
 		});
 
-		const data = await response.json();
-
-		console.log("Video started processing:", data);
-
-		// Poll until the video is available
-		let videoReady = false;
-		let videoUrl = data.video_url;
-
-		while (!videoReady) {
-			const checkResponse = await fetch(videoUrl, { method: "HEAD" });
-
-			if (checkResponse.status === 200) {
-				videoReady = true;
-				router.push(`/card?video=${encodeURIComponent(videoUrl)}`); // Navigate when ready
-			} else {
-				console.log("Waiting for video to be ready...");
-				await new Promise((resolve) => setTimeout(resolve, 5000)); // Wait 5 seconds
-			}
-		}
+		const result = await response.json();
+		console.log("Server response:", result);
 	};
 
 	return (
