@@ -20,10 +20,12 @@ export default function CardPage() {
             <h1 className="text-xl font-bold bg-gradient-to-r from-pink-500 to-rose-500 bg-clip-text text-transparent mb-6">
                 Your Valentine's Card
             </h1>
-            <video controls className="w-full max-w-lg rounded-lg border border-pink-500/10">
-                <source src={videoUrl} type="video/mp4" />
-                Your browser does not support the video tag.
-            </video>
+            <div className="w-full max-w-xs aspect-[9/16]">
+                <video controls className="w-full h-full rounded-lg border border-pink-500/10">
+                    <source src={videoUrl} type="video/mp4" />
+                    Your browser does not support the video tag.
+                </video>
+            </div>
         </div>
     );
 }
