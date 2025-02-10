@@ -70,10 +70,19 @@ export default function ValentineGenerator() {
 
 function Header() {
 	return (
-		<div className="flex items-center gap-2 mb-12">
-			<Heart className="w-8 h-8 text-pink-500" />
-			<h1 className="text-3xl font-bold bg-gradient-to-r from-pink-500 to-rose-500 bg-clip-text text-transparent">CupidsCard</h1>
+		<div className="w-full max-w-xl flex flex-col items-center text-center space-y-3 mb-5">
+			<div className="flex items-center gap-2">
+				<Heart className="w-8 h-8 text-pink-500" />
+				<h1 className="text-3xl font-bold bg-gradient-to-r from-pink-500 to-rose-500 bg-clip-text text-transparent">
+					CupidsCard
+				</h1>
+			</div>
+			<h1 className="text-xl font-bold bg-gradient-to-r from-pink-500 to-rose-500 bg-clip-text text-transparent">
+				for a very very special valentine
+			</h1>
 		</div>
+
+
 	);
 }
 
