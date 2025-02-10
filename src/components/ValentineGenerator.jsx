@@ -16,18 +16,30 @@ export default function ValentineGenerator() {
 	const router = useRouter();
 
 	const handleGenerateVideo = async () => {
-		const fullMessage = `To: ${recipient}\n\n${message}\n\nFrom: ${sender}`;
-
-		const response = await fetch("http://127.0.0.1:5000/generate_video", {
+		const response = await fetch("http://127.0.0.1:8000/generate_video", {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ message: fullMessage }),
+			body: JSON.stringify({ recipient, sender, message }),
 		});
 
 		const data = await response.json();
 
-		if (data.video_url) {
-			router.push(`/card?video=${encodeURIComponent(data.video_url)}`); // Client-side navigation
+		console.log("Video started processing:", data);
+
+		// Poll until the video is available
+		let videoReady = false;
+		let videoUrl = data.video_url;
+
+		while (!videoReady) {
+			const checkResponse = await fetch(videoUrl, { method: "HEAD" });
+
+			if (checkResponse.status === 200) {
+				videoReady = true;
+				router.push(`/card?video=${encodeURIComponent(videoUrl)}`); // Navigate when ready
+			} else {
+				console.log("Waiting for video to be ready...");
+				await new Promise((resolve) => setTimeout(resolve, 5000)); // Wait 5 seconds
+			}
 		}
 	};
 
